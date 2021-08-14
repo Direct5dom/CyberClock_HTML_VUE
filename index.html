@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <title>赛博时钟</title>
+    <link href="./files/index.css" rel="stylesheet">
+</head>
+
+<body marginheight="0px" marginwidth="0px">
+    <div class="full-box">
+        <script type="text/javascript" color="255,255,255" opacity='0.8' zIndex="0" count="50"
+            src="files/canvas-nest.js"></script>
+        <div id="app" zIndex="1">
+            <div class="clock">
+                <span class="text" v-if="index == 0">
+                    {{ hour }}:{{ min }}:{{ sec }}
+                </span>
+                <span class="text" v-else>
+                    {{ min }}:{{ sec }}:{{ msec }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var app = new Vue({
+            el: '#app',
+            data: {
+                index: 0,   // 状态指示器：0-时钟 1-计时器计时 2-计时器暂停
+                hour: '00', // 默认显示的字符，初始化为"00"
+                min: '00',
+                sec: '00',
+                msec: '00',
+                h: 0,       // 临时保存的数值，初始化为"00"
+                m: 0,
+                s: 0,
+                ms: 0,
+                timer: null,
+                date: null
+            },
+            // Vue侦听器
+            watch: {
+                index(newValue, oldValue) {
+                    clearInterval(this.timer);
+                    this.timer = null;
+                    this.date = null;
+                    // 从时钟页面click过来 或 从计时器页面click过来
+                    if (oldValue == 0 || newValue == 0) {   // index等于2时数据保留
+                        this.hour = '00';
+                        this.min = '00';
+                        this.sec = '00';
+                        this.msec = '00';
+                        this.h = 0;
+                        this.m = 0;
+                        this.s = 0;
+                        this.ms = 0;
+                    }
+                    this.autoMove();
+                }
+            },
+            methods: {
+                // 自动计时
+                autoMove() {
+                    if (this.index == 0) {
+                        this.timer = setInterval(res => {
+                            this.date = new Date();
+                            this.h = this.date.getHours();
+                            this.m = this.date.getMinutes();
+                            this.s = this.date.getSeconds();
+                            this.hour = this.h > 9 ? this.h : '0' + this.h;
+                            this.min = this.m > 9 ? this.m : '0' + this.m;
+                            this.sec = this.s > 9 ? this.s : '0' + this.s;
+                        }, 1000);
+                    } else if (this.index == 1) {
+                        this.timer = setInterval(res => {
+                            this.ms++;
+                            if (this.ms == 100) {
+                                this.s++;
+                                this.ms = 0;
+                            }
+                            if (this.s == 60) {
+                                this.m++;
+                                this.s = 0;
+                            }
+                            this.msec = this.ms > 9 ? this.ms : '0' + this.ms;
+                            this.min = this.m > 9 ? this.m : '0' + this.m;
+                            this.sec = this.s > 9 ? this.s : '0' + this.s;
+                        }, 10);
+                    }
+                },
+                // 选择时钟
+                selectClock() {
+                    this.index = 0;
+                },
+                // 选择计时器
+                selectTimer() {
+                    this.index = 1;
+                },
+                // 开始、暂停计时器
+                suspendTimer() {
+                    if (this.index == 1) {
+                        this.index = 2;
+                    } else if (this.index == 2) {
+                        this.index = 1;
+                    }
+                },
+                // 重置计时器
+                resetTimer() {
+                    this.index = 0;
+                    setTimeout(res => {
+                        this.index = 1;
+                    }, 1);
+                }
+            },
+            mounted() {
+                this.autoMove();
+            }
+        })
+    </script>
+</body>
+
+</html>
