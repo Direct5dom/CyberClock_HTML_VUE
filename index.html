@@ -40,6 +40,37 @@
                 timer: null,
                 date: null
             },
+            methods: {
+                // 自动计时
+                autoMove() {
+                    if (this.index == 0) {
+                        this.timer = setInterval(res => {
+                            this.date = new Date();
+                            this.h = this.date.getHours();
+                            this.m = this.date.getMinutes();
+                            this.s = this.date.getSeconds();
+                            this.hour = this.h > 9 ? this.h : '0' + this.h;
+                            this.min = this.m > 9 ? this.m : '0' + this.m;
+                            this.sec = this.s > 9 ? this.s : '0' + this.s;
+                        }, 1000);
+                    } else if (this.index == 1) {
+                        this.timer = setInterval(res => {
+                            this.ms++;
+                            if (this.ms == 100) {
+                                this.s++;
+                                this.ms = 0;
+                            }
+                            if (this.s == 60) {
+                                this.m++;
+                                this.s = 0;
+                            }
+                            this.msec = this.ms > 9 ? this.ms : '0' + this.ms;
+                            this.min = this.m > 9 ? this.m : '0' + this.m;
+                            this.sec = this.s > 9 ? this.s : '0' + this.s;
+                        }, 10);
+                    }
+                },
+            },
             mounted() {
                 this.autoMove();
             }
